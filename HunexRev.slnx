@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Compress/Compress.csproj" Id="989cdf2f-68a2-46ec-ad2d-3ce6d899df1f" />
   <Project Path="hpbUnpack/hpbUnpack.csproj" />
 </Solution>
