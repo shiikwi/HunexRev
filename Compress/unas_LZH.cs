@@ -6,7 +6,7 @@ namespace Compress
 {
     public class unas_LZH : Unas_Compress
     {
-        public static uint ID = 0x484C5A48;  //HLZH
+        public static uint ID = 0x485A4C48;  //HLZH
         private static int HEAD_SIZE = 0x10;
         private const int TABLE_SZIE = 0x200;
 

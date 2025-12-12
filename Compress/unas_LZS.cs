@@ -6,7 +6,7 @@ namespace Compress
 {
     public class unas_LZS : Unas_Compress
     {
-        public static uint ID = 0x484C5A53;  //HLZS
+        public static uint ID = 0x535A4C48;  //HLZS
         private static int HEAD_SIZE = 0X20;
 
         public override byte[] Decode(byte[] data)

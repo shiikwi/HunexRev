@@ -11,12 +11,12 @@ namespace ScriptParser
         protected byte[] DecodeAsset(byte[] data)
         {
             var buffer = new byte[data.Length];
-            if (BinaryPrimitives.ReadUInt32BigEndian(data) == unas_LZH.ID)
+            if (BitConverter.ToUInt32(data) == unas_LZH.ID)
             {
                 var lzh = new unas_LZH();
                 buffer = lzh.Decode(data);
             }
-            else if (BinaryPrimitives.ReadUInt32BigEndian(data) == unas_LZS.ID)
+            else if (BitConverter.ToUInt32(data) == unas_LZS.ID)
             {
                 var lzs = new unas_LZS();
                 buffer = lzs.Decode(data);

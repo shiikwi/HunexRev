@@ -2,7 +2,7 @@
 {
     public class unas_Huffman
     {
-        private static uint ID = 0x48485546;  //HHUF
+        private static uint ID = 0x46554848;  //HHUF
 
         public class Node
         {
