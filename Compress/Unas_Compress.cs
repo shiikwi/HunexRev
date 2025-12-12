@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Compress
 {
     public abstract class Unas_Compress
     {
-        protected const int HEAD_SIZE = 0x10;
         protected const int WINDOW_SIZE = 0x1000;
+        private static int MAX_LEN = 0x12;
+        private int MASK = WINDOW_SIZE - 1;
 
         protected byte[] buffer;
         protected int outPos;
@@ -19,29 +21,24 @@ namespace Compress
             buffer = new byte[size];
             outPos = 0;
             window = new byte[WINDOW_SIZE];
-            windowPos = 0;
+            windowPos = WINDOW_SIZE - MAX_LEN;
         }
 
         protected void PutLiteral(byte b)
         {
             if (outPos < buffer.Length) buffer[outPos++] = b;
-            window[windowPos++] = b;
-            if (windowPos >= WINDOW_SIZE) windowPos = 0;
+            window[windowPos] = b;
+            windowPos = (windowPos + 1) & MASK;
         }
 
-        protected void CopyHistory(int distance, int length)
+        protected void CopyHistory(int absIndex, int length)
         {
             for (int i = 0; i < length; i++)
             {
-                int srcPos = windowPos - distance;
-                if (srcPos < 0) srcPos += WINDOW_SIZE;
-                byte b = 0;
-                if (srcPos >= 0 && srcPos < WINDOW_SIZE)
-                    b = window[srcPos];
+                byte b = window[(absIndex + i) & MASK];
                 PutLiteral(b);
             }
         }
-
         public abstract byte[] Decode(byte[] data);
     }
 }

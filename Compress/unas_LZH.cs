@@ -7,6 +7,7 @@ namespace Compress
     public class unas_LZH : Unas_Compress
     {
         public static uint ID = 0x484C5A48;  //HLZH
+        private static int HEAD_SIZE = 0x10;
         private const int TABLE_SZIE = 0x200;
 
         public override byte[] Decode(byte[] data)
@@ -37,7 +38,6 @@ namespace Compress
             }
         }
 
-
         private byte[] ExecDecode(byte[] data, int offset, int outsize, unas_Huffman huffman)
         { 
             UnasBitStream bs = new UnasBitStream(data, offset);
@@ -54,29 +54,28 @@ namespace Compress
                     flagCount = 8;
                 }
 
-                bool isCompressed = (flags & 1) != 0;
+                bool isLiteral = (flags & 1) != 0;
                 flags >>= 1;
                 flagCount--;
 
-                if (isCompressed)
-                {
-                    int distLow = huffman.ReadSymbol(bs);
-                    if (distLow == -1) break;
-
-                    int distHigh = huffman.ReadSymbol(bs);
-                    if (distHigh == -1) break;
-
-                    int distance = distLow | ((distHigh >> 4) << 8);
-                    int length = (distHigh & 0xF) + 3;
-
-                    CopyHistory(distance, length);
-                }
-                else
+                if (isLiteral)
                 {
                     int symbol = huffman.ReadSymbol(bs);
                     if (symbol == -1) break;
 
                     PutLiteral((byte)symbol);
+                }
+                else
+                {
+                    int low = huffman.ReadSymbol(bs);
+                    if (low == -1) break;
+
+                    int high = huffman.ReadSymbol(bs);
+                    if (high == -1) break;
+
+                    int absIndex = low | ((high & 0xF0) << 4);
+                    int length = (high & 0x0F) + 3;
+                    CopyHistory(absIndex, length);
                 }
             }
 

@@ -6,7 +6,8 @@ namespace Compress
 {
     public class unas_LZS : Unas_Compress
     {
-        public static int ID = 0x484C5A53;  //HLZS
+        public static uint ID = 0x484C5A53;  //HLZS
+        private static int HEAD_SIZE = 0X20;
 
         public override byte[] Decode(byte[] data)
         {
@@ -35,18 +36,18 @@ namespace Compress
             {
                 if(flagsCount == 0)
                 {
-                    flags = data[inPos++] | 0xFF00;
+                    flags = data[inPos++];
                     flagsCount = 8;
                 }
 
-                bool isLiteral = ((flags >> 1) & 1) != 0;
+                bool isLiteral = (flags & 1) != 0;
                 flags >>= 1;
                 flagsCount--;
 
                 if(isLiteral)
                 {
+                    if (inPos >= data.Length) break;
                     byte b = data[inPos++];
-
                     PutLiteral(b);
                 }
                 else
@@ -55,10 +56,10 @@ namespace Compress
                     int b1 = data[inPos++];
                     int b2 = data[inPos++];
 
-                    int distance = b1 | ((b2 >> 4) << 8);
-                    int length = (b2 & 0xF) + 3;
+                    int absIndex = b1 | ((b2 & 0xF0) << 4);
+                    int length = (b2 & 0x0F) + 3;
 
-                    CopyHistory(distance, length);
+                    CopyHistory(absIndex, length);
                 }
             }
 
