@@ -16,8 +16,12 @@ namespace hpbUpack
 
             string dir = Path.Combine(Path.GetDirectoryName(args[0])!, Path.GetFileNameWithoutExtension(args[0]) + "Unpack");
             string hphPath = Path.Combine(Path.GetDirectoryName(args[0])!, Path.GetFileNameWithoutExtension(args[0]) + ".hph");
+
+            var hpbbytes = File.ReadAllBytes(args[0]);
+            var hphbytes = File.ReadAllBytes(hphPath);
             var un = new unas_FilePack();
-            un.Unpack(args[0], hphPath, dir);
+            un.LoadAsset(hpbbytes, hphbytes);
+            un.Unpack(hpbbytes, hphbytes, dir);
         }
     }
 

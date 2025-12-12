@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Compress;
 
 namespace hpbUpack
 {
@@ -37,19 +38,32 @@ namespace hpbUpack
             public Table Info;
         }
 
-        public void Unpack(string hpbPath, string hphPath, string outDir)
+        public void LoadAsset(byte[] hpb, byte[] hph)
         {
-            if (!File.Exists(hpbPath) || !File.Exists(hphPath))
+            void Check(byte[] data)
             {
-                Console.WriteLine($"{hpbPath} or {hphPath} not exist");
-                return;
+                if(BitConverter.ToUInt32(data, 0) == unas_LZH.ID)
+                {
+                    var lzh = new unas_LZH();
+                    lzh.Decode(hpb);
+                }
+                else if(BitConverter.ToUInt32(data, 0) == unas_LZS.ID)
+                {
+                    var lzs = new unas_LZS();
+                    lzs.Decode(hpb);
+                }
             }
 
+            Check(hpb);
+            Check(hph);
+        }
+
+        public void Unpack(byte[] hpb, byte[] hph, string outDir)
+        {
             if (!Path.Exists(outDir)) Directory.CreateDirectory(outDir);
 
             var FileEntries = new List<Entry>();
-            using (var fs = new FileStream(hphPath, FileMode.Open, FileAccess.Read))
-            using (var br = new BinaryReader(fs))
+            using (var br = new BinaryReader(new MemoryStream(hph)))
             {
                 Header header = new Header();
                 header.ID = br.ReadUInt32();
@@ -72,11 +86,11 @@ namespace hpbUpack
                 for (int i = 0; i < header.Count; i++)
                 {
                     var entry = new Entry();
-                    fs.Position = name_cr;
+                    br.BaseStream.Position = name_cr;
                     entry.FileName = ReadCString(br);
-                    name_cr = fs.Position;
+                    name_cr = br.BaseStream.Position;
 
-                    fs.Position = table_cr;
+                    br.BaseStream.Position = table_cr;
                     entry.Info = new Table
                     {
                         Offset = br.ReadInt64(),
@@ -92,15 +106,16 @@ namespace hpbUpack
                 }
             }
 
-            using (var fs = new FileStream(hpbPath, FileMode.Open, FileAccess.Read))
-            using (var br = new BinaryReader(fs))
+            using (var br = new BinaryReader(new MemoryStream(hpb)))
             {
                 foreach(var entry in FileEntries)
                 {
-                    fs.Position = entry.Info.Offset;
+                    br.BaseStream.Position = entry.Info.Offset;
                     byte[] data = br.ReadBytes((int)entry.Info.FileSize);
 
                     string outpath = Path.Combine(outDir, entry.FileName);
+                    if(!Directory.Exists(Path.GetDirectoryName(outpath)))
+                        Directory.CreateDirectory(Path.GetDirectoryName(outpath)!);
                     File.WriteAllBytes(outpath, data);
                     Console.WriteLine($"Export: {entry.FileName}");
                 }
