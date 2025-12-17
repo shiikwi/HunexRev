@@ -2,4 +2,5 @@
   <Project Path="Compress/Compress.csproj" Id="989cdf2f-68a2-46ec-ad2d-3ce6d899df1f" />
   <Project Path="hpbUnpack/hpbUnpack.csproj" />
   <Project Path="ScriptParser/ScriptParser.csproj" Id="4cee1bfa-58b2-4194-a71b-e50d1f602b35" />
+  <Project Path="VmDsm/VmDsm.csproj" Id="0e483907-048e-472e-907c-8125a89a072b" />
 </Solution>
