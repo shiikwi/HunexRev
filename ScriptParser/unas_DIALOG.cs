@@ -35,6 +35,9 @@ namespace ScriptParser
                     throw new Exception($"Invalid Magic {header.ID}");
                 }
 
+                Console.WriteLine($"[*] Count: {header.Count}");
+                Console.WriteLine($"[*] Offset: {header.Offset}");
+
                 br.BaseStream.Position = HEAD_SIZE;
                 int[] addrs = new int[header.Count];
                 for (int i = 0; i < header.Count; i++)
@@ -42,14 +45,14 @@ namespace ScriptParser
                     addrs[i] = br.ReadInt32();
                 }
 
-                using (var wr = new StreamWriter(outPath, false, Encoding.UTF8))
+                using (var wr = new StreamWriter(outPath, false, new UTF8Encoding(false)))
                 {
                     for (int i = 0; i < header.Count; i++)
                     {
                         int off = header.Offset + addrs[i];
                         br.BaseStream.Position = off;
                         string text = ReadCString(br).Replace("\n", "\\n");
-                        wr.WriteLine($"*0x{off:X}* {text}");
+                        wr.WriteLine($"◇0x{off:X}◇{text}");
                     }
                 }
 

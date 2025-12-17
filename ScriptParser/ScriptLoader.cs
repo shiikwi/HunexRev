@@ -10,18 +10,21 @@ namespace ScriptParser
     {
         protected byte[] DecodeAsset(byte[] data)
         {
-            var buffer = new byte[data.Length];
             if (BitConverter.ToUInt32(data) == unas_LZH.ID)
             {
                 var lzh = new unas_LZH();
-                buffer = lzh.Decode(data);
+                return lzh.Decode(data);
             }
             else if (BitConverter.ToUInt32(data) == unas_LZS.ID)
             {
                 var lzs = new unas_LZS();
-                buffer = lzs.Decode(data);
+                return lzs.Decode(data);
             }
-            return buffer;
+            else
+            {
+                Console.WriteLine($"No or Unknown Decryption");
+                return data;
+            }
         }
 
         protected string ReadCString(BinaryReader br)
